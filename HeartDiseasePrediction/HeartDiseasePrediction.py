@@ -205,6 +205,60 @@ sns.countplot(data.ca)
 data.thal.unique()
 sns.countplot(data.thal)
 # I cant find this in the data's doc, I dont know whether to take it as ordinal or nominal
+# And thus the univariate analysis is complete
+
+# Multivariate Analysis
+
+# Age with respect to heart disease
+target1 = data[data['target']==1]['ageBin'].value_counts()
+target0 = data[data['target']==0]['ageBin'].value_counts()
+temp = pd.DataFrame([target0, target1])
+temp.index = ['Healthy', 'Disease']
+temp.plot(kind='bar', stacked=True)
+
+# Sex with respect to heart disease
+target1 = data[data['target']==1]['sex'].value_counts()
+target0 = data[data['target']==0]['sex'].value_counts()
+tempDf = pd.DataFrame([target0, target1])
+tempDf.index = ['Healthy', 'Disease']
+tempDf.plot(kind='bar', stacked=True)
+
+# Relationship between age and trestbps
+data.plot(kind='scatter', x='age', y='trestbps', color='green', alpha=0.5)
+# More people will have higher blood pressure as they age
+
+# Relationship between age and maximum heartrate acheived
+data.plot(kind='scatter', x='age', y='thalach', color='blue', alpha=0.5)
+# As you age, the maximum heart rate you can achieve will gradually reduce
+
+# Relationships between age, cholestrol, ca and oldpeak
+sns.pairplot(data.loc[:, ['age', 'chol', 'ca', 'oldpeak']])
+
+# Correlation Matrix
+dataCorr = data.corr()['target'][:-1] # Last row is the target
+# Now take the most correlated features
+goldFeaturesList = dataCorr[abs(dataCorr) > 0.1].sort_values()
+# So the strongly correlated features with the target are
+goldFeaturesList
+
+# Drawing the correlation matrix
+corr = data.corr()
+plt.figure(figsize=(12, 12))
+sns.heatmap(data=corr[abs(corr) > 0.1], vmin=-1, vmax=1, cmap='summer', annot=True, cbar=True, square=True)
+
+# Modeling 
+# Again importing data
+data = pd.read_csv('heart.csv')
+y = data['target']
+X = data.drop(['target'], axis=1)
+# Train-Test Split
+from sklearn.model_selection import train_test_split
+Xtrain, Xtest, yTrain, yTest = train_test_split(X, y, test_size=0.25, random_state=0)
+# Yep, train test split will randomize (obviously, what was I thinking)
+# Traditional Models
+
+# Logistic Regression
+from sklearn.linear_model import LogisticRegression
 
 
 
