@@ -255,10 +255,82 @@ X = data.drop(['target'], axis=1)
 from sklearn.model_selection import train_test_split
 Xtrain, Xtest, yTrain, yTest = train_test_split(X, y, test_size=0.25, random_state=0)
 # Yep, train test split will randomize (obviously, what was I thinking)
+
+
+# Evaluating the results
+# First, lets make a function to evaluate the results of prediction
+from sklearn.metrics import confusion_matrix
+# Precision = tp/(tp+fp) ie out of all predicted positive, how many actually have heartDisease
+from sklearn.metrics import precision_score
+# Recall = tp/(tp+fn) ie out of all heart disease patients, how many are detected by our MLalgo
+from sklearn.metrics import recall_score
+from sklearn.metrics import roc_curve, auc
+
+def evaluateModel(yTrue, yPredicted, modelName):
+    print("=====================================================")
+    print("Result of prediction for the model - ", modelName)
+    confMatrix = confusion_matrix(yTrue, yPredicted)
+    print("Confusion Matrix")
+    print(confMatrix)
+    precision = round(precision_score(yTrue, yPredicted), 4)
+    print("Precision is ", precision)
+    print("Out of all predicted as Heart Patients, {} percent actually have Heart Disease".format(precision*100))
+    recall = round(recall_score(yTrue, yPredicted), 4)
+    print("Recall is ", recall)
+    print("Out of all actual heart patients, {0} is able to detect {1} percent of them".format(modelName, recall*100))
+    print("Drawing the ROC")
+    fpr, tpr, thresholds = roc_curve(yPredicted, yTrue)
+    roc_auc = round(auc(fpr, tpr), 3) # I only need three decimal places
+    plt.figure(figsize=(10, 6))
+    plt.plot(fpr, tpr, color='darkorange', lw=1, label="{0}, area={1}".format(modelName, roc_auc))
+    plt.plot([0, 1], [0, 1], color='blue', lw=1, linestyle='--') # Apparently this is line between (0,0) and (1,1)
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel("Flase Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.title("Receiver Operating Characteristic for {}".format(modelName))
+    plt.legend(loc="lower right")
+    plt.show()
+    print("=====================================================")
+    
+# Modeling    
 # Traditional Models
 
 # Logistic Regression
 from sklearn.linear_model import LogisticRegression
+logisticRegression = LogisticRegression(random_state=0)
+logisticRegression.fit(Xtrain, yTrain)
+yPredLogReg = logisticRegression.predict(Xtest)
+# Evaluating Logistic Regression
+evaluateModel(yTest, yPredLogReg, "Logistic Regression")
+
+# Naive Bayes
+from sklearn.naive_bayes import GaussianNB
+naiveBayes = GaussianNB(priors=None)
+naiveBayes.fit(Xtrain, yTrain)
+yPredNaiveBayes = naiveBayes.predict(Xtest)
+# Evaluating Naive Bayes
+evaluateModel(yTest, yPredNaiveBayes, "Naive Bayes")
+
+# Decision Tree Classifier
+from sklearn.tree import DecisionTreeClassifier
+decTree = DecisionTreeClassifier(criterion='entropy', random_state=0)
+decTree.fit(Xtrain, yTrain)
+yPredDecTree = decTree.predict(Xtest)
+# Evaluating Decision Tree
+evaluateModel(yTest, yPredDecTree, "Decision Tree")
+
+
+# Using Ensemble Methods
+# Now let us use Bagging Methods
+from sklearn.ensemble import RandomForestClassifier
+randForest = RandomForestClassifier(criterion='entropy', random_state=0)
+randForest.fit(Xtrain, yTrain)
+yPredRandForest = randForest.predict(Xtest)
+# Evaluating Random Forest
+evaluateModel(yTest, yPredRandForest, "Random Forest")
+
+
 
 
 
