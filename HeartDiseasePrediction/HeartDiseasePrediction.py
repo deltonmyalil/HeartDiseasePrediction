@@ -323,6 +323,8 @@ evaluateModel(yTest, yPredDecTree, "Decision Tree")
 
 # Using Ensemble Methods
 # Now let us use Bagging Methods
+
+# Random Forest Classifier
 from sklearn.ensemble import RandomForestClassifier
 randForest = RandomForestClassifier(criterion='entropy', random_state=0)
 randForest.fit(Xtrain, yTrain)
@@ -330,6 +332,56 @@ yPredRandForest = randForest.predict(Xtest)
 # Evaluating Random Forest
 evaluateModel(yTest, yPredRandForest, "Random Forest")
 
+# Extra Trees Classifier
+# Extremely Randomized Trees Classifier
+# ET algorithm is quite similar to Random Forest - but splits are selected on random instead of using some criterions. 
+from sklearn.ensemble import ExtraTreesClassifier
+extraTrees = ExtraTreesClassifier(n_estimators=10, criterion='entropy', bootstrap=False, random_state=0)
+# If bootstrap is false, whole dataset is used to build the tree, if true, samples are drawn with replacement
+# 10 individual decision trees running based on entropy and information gain
+extraTrees.fit(Xtrain, yTrain)
+yPredExtraTrees = extraTrees.predict(Xtest)
+# Evaluating Extra Trees
+evaluateModel(yTest, yPredExtraTrees, "Extra Trees")
+
+# Bagging using individual logistic regression models
+from sklearn.ensemble import BaggingClassifier
+# Make a Logistic Regression Classifier
+logRegModelToBag = LogisticRegression(random_state=0)
+logRegBagging = BaggingClassifier(base_estimator=logRegModelToBag, n_estimators=10, bootstrap=True, random_state=0)
+logRegBagging.fit(Xtrain, yTrain)
+yPredLogRegBag = logRegBagging.predict(Xtest)
+# Evaluating bagging using individual logistic regression models
+evaluateModel(yTest, yPredLogRegBag, "Logreg Bagging")
+
+# Boosting
+
+# Gradient Boosting
+from sklearn.ensemble import GradientBoostingClassifier
+gradBoost = GradientBoostingClassifier(random_state=0)
+gradBoost.fit(Xtrain, yTrain)
+yPredGradBoost = gradBoost.predict(Xtest)
+# Evaluating Gradient Boosting Classifier
+evaluateModel(yTest, yPredGradBoost , "Gradient Boosting")
+
+# Extreme Gradient Boosting
+# Note: Need to install xgboost in conda
+# conda install -c conda-forge xgboost
+from xgboost import XGBClassifier
+xgbClassifier = XGBClassifier(n_estimators=100, random_state=0)
+xgbClassifier.fit(Xtrain, yTrain)
+yPredXgb = xgbClassifier.predict(Xtest)
+# Evaluating xg Boost
+evaluateModel(yTest, yPredXgb, "XG Boost")
+
+# AdaBoost on Decision Tree Similar to above
+from sklearn.ensemble import AdaBoostClassifier
+decTreeAdaBoostModel = DecisionTreeClassifier(criterion='entropy', random_state=0)
+adaBoost = AdaBoostClassifier(base_estimator=decTreeAdaBoostModel, random_state=0)
+adaBoost.fit(Xtrain, yTrain)
+yPredAdaBoost = adaBoost.predict(Xtest)
+# Evaluating Adaboost
+evaluateModel(yTest, yPredAdaBoost, "AdaBoost on Decision Tree")
 
 
 
